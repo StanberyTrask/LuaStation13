@@ -20,11 +20,14 @@ for x=0, 255 do
 end
 --]]
 
-mapData["127.128"]["w"] = steelWall
-mapData["127.129"]["w"] = steelWall
-mapData["127.130"]["w"] = steelWall
-mapData["128.130"]["w"] = steelWall
-mapData["129.130"]["w"] = steelWall
+mapData["27.28"]["w"] = steelWall
+mapData["27.27"]["w"] = steelWall
+mapData["27.26"]["w"] = steelWall
+mapData["27.25"]["w"] = steelWall
+mapData["28.28"]["w"] = steelWall
+mapData["28.27"]["w"] = steelWall
+mapData["28.29"]["w"] = steelWall
+mapData["29.28"]["w"] = steelWall
 
 for X=0,255 do
 	for Y=0, 255 do

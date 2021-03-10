@@ -1,27 +1,18 @@
 require "load"
 require "maps.luabase"
-require "maps.mapconvert"
-local utf8 = require "utf8"
 
 function love.load()
 	playerSpeed = 20 --multipier of the player speed
 	courier = love.graphics.newFont("09809_COURIER.ttf", 20)
-	px, py = 120, 120 --current player coordinates
+	px, py = 25, 25 --current player coordinates
 	gx, gy = 19, 15 --the number of grids the player can see
 	dx, dy = (gx*32) + 300, gy*32 --disply size in pixels
 	love.window.setMode(dx, dy, {resizable = false}) --sets window scale
 	isTyping = false
 	chatHistory, mesageNumber, playerText = {}, 0, ""
 	test = false
-end
-
-function round(number)
-  if (number - (number % 0.1)) - (number - (number % 1)) < 0.5 then
-    number = number - (number % 1)
-  else
-    number = (number - (number % 1)) + 1
-  end
- return number
+	square = {}
+	poly = {}
 end
 
 function love.keypressed(key)
@@ -77,6 +68,7 @@ function love.update(dt)
 			px = px + 1 * dt * playerSpeed
 		end
 	end
+--]]
 end
 
 function love.draw()
@@ -88,48 +80,141 @@ function love.draw()
 			local coord = mapData[rX.."."..rY] --the coord for the tile
 
 			if rX >= 0 and rX <= 255 and --checks for valid coords in X
-			   rY >= 0 and rY <= 255 then--checks for valid coords in Y
+			   rY >= 0 and rY <= 255 and --checks for valid coords in Y
+			   coord["occluded"] == false then
 
 				if coord["w"] ~= nil then --checks if wall
 					love.graphics.draw(
-					coord["w"][1], --fetch wall tile to render
+					coord["w"][1], --fetch wall tile to draw
 					(32*X)-32, --x offset
 					(32*Y)-32 --y offset
 					)
 				elseif coord["f"] ~= nil then --checks if floor
 					love.graphics.draw(
-					coord["f"][1], --fetch floor tile to render
+					coord["f"][1], --fetch floor tile to draw
 					(32*X)-32, --x offset
 					(32*Y)-32 --y offset
 					)
 				end
 			end
-
-			if coord["w"] ~= nil and coord["w"][2] == true then --check for wall and if that wall occludes
-				love.graphics.line((dx-300)/2, (dy/2), X*32, Y*32) --draw line to bottem right corner of wall
-			end
 		end
 	end--]]
 
-	--[[]
+	f = 0
+	g = 0
+	for X=1,gx do --search in X
+		for Y=1,gy do --seach in Y
+			local rX = round((px-10)+X) --the x coord
+			local rY = round((py-8)+Y) --the y coord
+			local coord = mapData[rX.."."..rY] --the coord for the tile
+
+			if rX >= 0 and rX <= 255 and --checks for valid coords in X
+			rY >= 0 and rY <= 255 and--checks for valid coords in Y
+			coord["w"] ~= nil and coord["w"][2] == true then --check for wall and if that wall occludes
+				square[f] = { --grab the corners of the wall
+					(32*X)-32, (32*Y)-32, --top left corner
+					32*X, (32*Y)-32, --top right corner
+					32*X, 32*Y, --bottom right corner
+					(32*X)-32, 32*Y --bottom left corner
+				}
+				f = f + 1
+			end
+		end
+	end
+--[[
+	for X=1,gx do
+		for Y=1,gy do
+
+			local rX = round((px-10)+X) --the x coord
+			local rY = round((py-8)+Y) --the y coord
+			local coord = mapData[rX.."."..rY] --the coord for the tile
+			local A = (Y*32) - (dy/2) - 16
+			local B = (X*32) - ((dx-300)/2) - 16
+			if rX >= 0 and rX <= 255 and --checks for valid coords in X
+			rY >= 0 and rY <= 255 and--checks for valid coords in Y
+			coord["w"] ~= nil and coord["w"][2] == true then --check for wall and if that wall occludes
+				--love.graphics.print(linextrap(dx-300, (dx-300)/2, dy/2, (X*32)-32, (Y*32)-32), 5, 5)
+				love.graphics.setColor(0, 0, 0, 1)
+				--[[
+				love.graphics.line((dx-300)/2, (dy/2), 0, linextrap(0, (dx-300)/2, dy/2, X*32, Y*32)) --draw line to bottem right corner
+				love.graphics.line((dx-300)/2, (dy/2), 0, linextrap(0, (dx-300)/2, dy/2, X*32, (Y*32)-32)) --draw line to top right
+				love.graphics.line((dx-300)/2, (dy/2), 0, linextrap(0, (dx-300)/2, dy/2, (X*32)-32, (Y*32)-32)) --draw line to top left
+				love.graphics.line((dx-300)/2, (dy/2), 0, linextrap(0, (dx-300)/2, dy/2, (X*32)-32, Y*32)) --draw line to bottom left
+				--]]
+				--[[
+				if rX > round(px) and rY < round(py) then
+					shadowPoints = {
+						(X*32)-32, (Y*32)-32,
+						X*32, (Y*32)-32,
+						X*32, Y*32,
+						dx-300, linextrap(dx-300, (dx-300)/2, dy/2, X*32, Y*32),
+						dx-300, 0,
+						dx-300, linextrap(dx-300, (dx-300)/2, dy/2, (X*32)-32, (Y*32)-32)
+					}
+
+					triangles = love.math.triangulate(shadowPoints)
+
+					for i=1,tablelength(triangles) do
+						love.graphics.polygon("fill", triangles[i])
+					end
+
+				elseif rX < round(px) and rY < round(py) then
+					shadowPoints = {
+						X*32, (Y*32)-32,
+						(X*32)-32, (Y*32)-32,
+						(X*32)-32, Y*32,
+						0, linextrap(0, (dx-300)/2, dy/2, (X*32)-32, Y*32),
+						0, 0,
+						0, linextrap(0, (dx-300)/2, dy/2, X*32, (Y*32)-32)
+					}
+
+					triangles = love.math.triangulate(shadowPoints)
+
+					for i=1,tablelength(triangles) do
+						love.graphics.polygon("fill", triangles[i])
+					end
+
+				elseif rX == round(px) and rY < round(py) then
+					shadowPoints = {
+						(X*32)-32, Y*32,
+						(X*32)-32, (Y*32)-32,
+						X*32, (Y*32)-32,
+						X*32, Y*32,
+						dx-300, linextrap(dx-300, (dx-300)/2, dy/2, X*32, Y*32),
+						0, linextrap(0, (dx-300)/2, dy/2, (X*32)-32, Y*32)
+					}
+
+					triangles = love.math.triangulate(shadowPoints)
+
+					for i=1, tablelength(triangles) do
+						love.graphics.polygon("fill", triangles[i])
+					end
+				end
+				love.graphics.setColor(1, 1, 1, 1)
+			end
+		end
+	end
+	--]]
+
+	--[[
 	for i=0,(dx-300)/32 do
 		love.graphics.line(0, 32*(i), dx-300, 32*(i)) --vertical lines
 		love.graphics.line(32*(i), 0, 32*(i), dy) --horizontal lines
 	end--]]
 
 	love.graphics.circle("fill", (dx-300)/2, (dy/2), 16)
-
-	--[[
-	love.graphics.setColor(1, 0, 0, 1)
-	love.graphics.line(0, 0, dx-300, dy)
-	love.graphics.line(0, dy, dx-300, 0)
-	love.graphics.line(0, dy/2, dx-300, dy/2)
-	love.graphics.line((dx-300)/2, 0, (dx-300)/2, dy)
-	love.graphics.setColor(1, 1, 1, 1)
-	--]]
+	--love.graphics.polygon("fill", square[0])
 
 	love.graphics.printf(tostring(playerText), dx-295, 30, 300, "left")
 	love.graphics.print("fps="..love.timer.getFPS(), dx-54, 5)
 	love.graphics.print("X="..round(px), dx-44, 15)
 	love.graphics.print("Y="..round(py), dx-44, 25)
+	love.graphics.print(getAdjacent(28, 28), dx-44, 45)
+
+	--[[
+	for i=1,tablelength(square[f])/2 do
+		poly[f] = rightTriangleC(square[f][(i*2)-1], square[f][i*2])
+	end
+	love.graphics.print(poly[f], dx-44, 35+(f*10))
+	]]
 end
