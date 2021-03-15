@@ -21,13 +21,13 @@ end
 --]]
 
 mapData["27.28"]["w"] = steelWall
-mapData["27.27"]["w"] = steelWall
-mapData["27.26"]["w"] = steelWall
-mapData["27.25"]["w"] = steelWall
-mapData["28.28"]["w"] = steelWall
-mapData["28.27"]["w"] = steelWall
-mapData["28.29"]["w"] = steelWall
-mapData["29.28"]["w"] = steelWall
+--mapData["27.27"]["w"] = steelWall
+--mapData["28.28"]["w"] = steelWall
+--mapData["27.25"]["w"] = steelWall
+--mapData["28.28"]["w"] = steelWall
+--mapData["28.27"]["w"] = steelWall
+--mapData["28.29"]["w"] = steelWall
+--mapData["29.28"]["w"] = steelWall
 
 for X=0,255 do
 	for Y=0, 255 do

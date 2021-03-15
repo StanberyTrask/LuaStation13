@@ -4,17 +4,9 @@ end
 
 function intToBin(int, width)
 	local t, i = {}, 1
-
-	if width == nil then
-		width = 0
-	end
-
-	if int == 0 then
-		t[i] = "0"
-	else
-		while int ~= 0 do
-			t[i], int, i = int%2, math.floor(int/2), i + 1
-		end
+	if width == nil then width = 0 end
+	if int == 0 then t[i] = "0" else
+		while int ~= 0 do t[i], int, i = int%2, math.floor(int/2), i + 1 end
 	end
 	local string = table.concat(t):reverse()
 	return string.rep("0", width-#string)..string
@@ -48,22 +40,14 @@ end
 function getAdjacent(rX, rY)
 	local i = 0
 	for k=1,4 do
-		if k == 1 then
-			if mapData[(rX+1).."."..rY]["w"] == true and mapData[(rX+1).."."..rY]["w"][2] == true then
-				i = i + 1
-			end
-		elseif k == 2 then
-			if mapData[(rX-1).."."..rY]["w"] == true and mapData[(rX-1).."."..rY]["w"][2] == true then
-				i = i + 1
-			end
-		elseif k == 3 then
-			if mapData[rX.."."..(rY+1)]["w"] == true and mapData[rX.."."..(rY+1)]["w"][2] == true then
-				i = i + 1
-			end
-		elseif k == 4 then
-			if mapData[rX.."."..(rY-1)]["w"] == true and mapData[rX.."."..(rY-1)]["w"][2] == true then
-				i = i + 1
-			end
+		if k == 1 and mapData[(rX+1).."."..rY]["w"] ~= nil and mapData[(rX+1).."."..rY]["w"][2] == true then
+			i = i + 1
+		elseif k == 2 and mapData[(rX-1).."."..rY]["w"] ~= nil and mapData[(rX-1).."."..rY]["w"][2] == true then
+			i = i + 1
+		elseif k == 3 and mapData[rX.."."..(rY+1)]["w"] ~= nil and mapData[rX.."."..(rY+1)]["w"][2] == true then
+			i = i + 1
+		elseif k == 4 and mapData[rX.."."..(rY-1)]["w"] ~= nil and mapData[rX.."."..(rY-1)]["w"][2] == true then
+			i = i + 1
 		end
 	end
 	return i
