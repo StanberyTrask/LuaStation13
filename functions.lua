@@ -27,8 +27,7 @@ function linextrap(x, x1, y1, x2, y2)
 end
 
 function rightTriangleC(A, B)
-	C = math.sqrt(math.pow(A, 2)+math.pow(B, 2))
-	return C
+	return math.sqrt(math.pow(A, 2)+math.pow(B, 2))
 end
 
 function tablelength(T)
@@ -51,4 +50,20 @@ function getAdjacent(rX, rY)
 		end
 	end
 	return i
+end
+
+function adjacentPermutation(rX, rY)
+	if mapData[(rX+1).."."..rY]["w"] ~= nil and mapData[(rX+1).."."..rY]["w"][2] == true then --right
+		s1 = "1"
+	else s1 = "0" end
+	if mapData[(rX-1).."."..rY]["w"] ~= nil and mapData[(rX-1).."."..rY]["w"][2] == true then --left
+		s2 = "1"
+	else s2 = "0" end
+	if mapData[rX.."."..(rY+1)]["w"] ~= nil and mapData[rX.."."..(rY+1)]["w"][2] == true then --bottom
+		s3 = "1"
+	else s3 = "0" end
+	if mapData[rX.."."..(rY-1)]["w"] ~= nil and mapData[rX.."."..(rY-1)]["w"][2] == true then --top
+		s4 = "1"
+	else s4 = "0" end
+	return s1..s2..s3..s4
 end
